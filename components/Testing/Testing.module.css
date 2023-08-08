@@ -1,0 +1,90 @@
+.container {
+  display: flex;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  &__atropos {
+    display: flex;
+    position: relative;
+    margin: auto;
+    width: 90%;
+    height: 90%;
+    overflow: visible;
+
+    &__logo {
+      margin: auto;
+      width: 300px;
+      height: auto;
+    }
+
+    &__ruffles {
+      position: absolute;
+
+      &__a {
+        composes: container__atropos__ruffles;
+        top: 0;
+
+        img {
+          width: 200px;
+          height: auto;
+        }
+      }
+
+      &__b {
+        composes: container__atropos__ruffles;
+        top: 30%;
+        left: 200px;
+
+        img {
+          width: 200px;
+          height: auto;
+        }
+      }
+
+      &__c {
+        composes: container__atropos__ruffles;
+        right: 0;
+        bottom: 0;
+
+        img {
+          width: 200px;
+          height: auto;
+        }
+      }
+
+      &__d {
+        right: 20%;
+        top: 40%;
+        composes: container__atropos__ruffles;
+
+        img {
+          width: 200px;
+          height: auto;
+        }
+      }
+    }
+  }
+  button {
+    position: absolute;
+    background-color: blue;
+    color: yellow;
+    width: 300px;
+    height: 50px;
+    border-radius: 50px;
+    left: 50%;
+    right: 50%;
+    transform: translateX(-50%);
+    bottom: 30%;
+    transition: 0.4s;
+    z-index: 2;
+
+    &:hover {
+      transform: scale(1.2) translateX(-50%);
+      left: 50%;
+      right: 50%;
+      transform: translateX(-50%);
+      background-color: green;
+    }
+  }
+}

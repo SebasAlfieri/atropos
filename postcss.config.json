@@ -1,0 +1,45 @@
+{
+  "plugins": [
+    "postcss-flexbugs-fixes",
+    [
+      "postcss-custom-media-generator",
+      {
+        "--small": "(min-width: 36em)",
+        "--medium": "(min-width: 48em)",
+        "--large": "(min-width: 62em)",
+        "--extraLarge": "(min-width: 75em)",
+        "--extraExtraLarge": "(min-width: 87.5em)",
+        "--ultraLarge": "(min-width: 105em)",
+        "--retina": "(min-width: 140em)",
+        "--iMac": "(min-width: 90.063em)",
+        "--safari": "(-webkit-touch-callout: none)",
+        "--iPhone11": "only screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)",
+        "--iPhone11Pro": "only screen and (min-device-width: 375px) and (max-device-height: 812px) and (-webkit-device-pixel-ratio: 3)",
+        "--iPhone11ProMax": "only screen and (min-device-width: 414px) and (max-device-height: 896px) and (-webkit-device-pixel-ratio: 3)",
+        "--iPhoneSE": "only screen and (min-device-width: 375px) and (max-device-width: 667px)",
+        "--iPhone8Plus": "only screen and (min-device-width: 414px) and (max-device-height: 736px) and (-webkit-device-pixel-ratio: 3)",
+        "--iPhone13": "(min-width: 24.375em)",
+        "--smartphoneBig": "(min-width: 25.000em)",
+        "--smartphoneMedium": "(max-width: 23.375em)",
+        "--smartphoneSmall": "(max-width: 20.000em)",
+        "--mbp14": "(min-width: 88.75em) and (max-width: 90em) and (min-height: 43.5em) and (max-height: 50em)",
+        "--wide": "(min-width: 75em) and (height <= 39.375em)"
+      }
+    ],
+    [
+      "postcss-preset-env",
+      {
+        "autoprefixer": {
+          "flexbox": "no-2009"
+        },
+        "stage": 3,
+        "features": {
+          "custom-properties": false
+        }
+      }
+    ],
+    "postcss-custom-media",
+    ["postcss-pxtorem", { "propList": ["*"] }],
+    "postcss-nested"
+  ]
+}
