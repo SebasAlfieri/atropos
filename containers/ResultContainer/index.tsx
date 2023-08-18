@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import s from './ResultContainer.module.css';
-import { Testing } from '@/components';
+import IpTesting from 'components/IpTesting';
+// import { Testing } from '@/components';
 
 const ResultContainer = () => {
   return (
     <motion.div className={s.container}>
       <motion.div className={s.container}>
-        <Testing />
+        <IpTesting />
       </motion.div>
     </motion.div>
   );
