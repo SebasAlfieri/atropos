@@ -68,6 +68,19 @@ export default function PanoramaViewer({
   }, [isScenesMode, currentScene]);
 
   useEffect(() => {
+    // lock body scroll while viewer is mounted
+    const previousOverflow = document.body.style.overflow;
+    const previousTouchAction = document.body.style.touchAction as string;
+    document.body.style.overflow = 'hidden';
+    document.body.style.touchAction = 'none';
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.touchAction = previousTouchAction;
+    };
+  }, []);
+
+  useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
