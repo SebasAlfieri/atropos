@@ -1,14 +1,33 @@
 'use client';
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import * as THREE from 'three';
+import s from './PanoramaViewer.module.css';
 
 export type PanoramaViewerProps = {
-  src: string;
+  src?: string;
   fov?: number;
+  scenes?: Array<{
+    id?: string;
+    image: string;
+    initialView?: { yaw?: number; pitch?: number; fov?: number };
+    hotspots?: Array<{
+      id?: string;
+      yaw: number; // degrees, left/right
+      pitch: number; // degrees, up/down
+      label?: string;
+      target: number; // index of destination scene in scenes array
+    }>;
+  }>;
+  initialSceneIndex?: number;
 };
 
-export default function PanoramaViewer({ src, fov = 75 }: PanoramaViewerProps) {
+export default function PanoramaViewer({
+  src,
+  fov = 75,
+  scenes,
+  initialSceneIndex = 0
+}: PanoramaViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
@@ -20,6 +39,33 @@ export default function PanoramaViewer({ src, fov = 75 }: PanoramaViewerProps) {
   const thetaRef = useRef<number>(0);
   const pointerXRef = useRef<number>(0);
   const pointerYRef = useRef<number>(0);
+  const meshRef = useRef<THREE.Mesh | null>(null);
+  const overlayRef = useRef<HTMLDivElement | null>(null);
+  const isTransitioningRef = useRef<boolean>(false);
+
+  // scenes mode state
+  const [currentSceneIndex, setCurrentSceneIndex] = useState<number>(initialSceneIndex);
+  const isScenesMode = !!scenes && scenes.length > 0;
+
+  const currentScene = useMemo(() => {
+    if (!isScenesMode) return null;
+    const safeIndex = Math.max(0, Math.min((scenes as any).length - 1, currentSceneIndex));
+    return (scenes as any)[safeIndex];
+  }, [isScenesMode, scenes, currentSceneIndex]);
+
+  const effectiveSrc = isScenesMode ? (currentScene?.image as string) : (src as string);
+
+  useEffect(() => {
+    if (!isScenesMode || !currentScene) return;
+    // set initial view per-scene if provided
+    if (currentScene.initialView?.yaw !== undefined) lonRef.current = currentScene.initialView.yaw;
+    if (currentScene.initialView?.pitch !== undefined)
+      latRef.current = currentScene.initialView.pitch;
+    if (currentScene.initialView?.fov !== undefined && cameraRef.current) {
+      cameraRef.current.fov = currentScene.initialView.fov;
+      cameraRef.current.updateProjectionMatrix();
+    }
+  }, [isScenesMode, currentScene]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -46,11 +92,12 @@ export default function PanoramaViewer({ src, fov = 75 }: PanoramaViewerProps) {
     geometry.scale(-1, 1, 1);
 
     const textureLoader = new THREE.TextureLoader();
-    const texture = textureLoader.load(src);
+    const texture = textureLoader.load(effectiveSrc);
     texture.colorSpace = THREE.SRGBColorSpace;
 
     const material = new THREE.MeshBasicMaterial({ map: texture });
     const mesh = new THREE.Mesh(geometry, material);
+    meshRef.current = mesh;
     scene.add(mesh);
 
     camera.position.set(0, 0, 0.1);
@@ -66,6 +113,50 @@ export default function PanoramaViewer({ src, fov = 75 }: PanoramaViewerProps) {
       const z = 500 * Math.sin(phiRef.current) * Math.sin(thetaRef.current);
 
       camera.lookAt(x, y, z);
+      // update hotspot overlay positions if any
+      if (
+        isScenesMode &&
+        currentScene &&
+        currentScene.hotspots &&
+        currentScene.hotspots.length > 0
+      ) {
+        const rendererEl = renderer.domElement;
+        const width = rendererEl.clientWidth;
+        const height = rendererEl.clientHeight;
+        const cameraDirection = new THREE.Vector3();
+        camera.getWorldDirection(cameraDirection);
+
+        currentScene.hotspots.forEach((hotspot: { yaw: number; pitch: number }, idx: number) => {
+          const el = document.getElementById(`pv-hotspot-${idx}`) as HTMLButtonElement | null;
+          if (!el) return;
+          const phi = THREE.MathUtils.degToRad(90 - hotspot.pitch);
+          const theta = THREE.MathUtils.degToRad(hotspot.yaw);
+          const radius = 500;
+          const x = radius * Math.sin(phi) * Math.cos(theta);
+          const y = radius * Math.cos(phi);
+          const z = radius * Math.sin(phi) * Math.sin(theta);
+          const position = new THREE.Vector3(x, y, z);
+
+          // visibility: in front of camera
+          const toPoint = position.clone().normalize();
+          const facing = cameraDirection.dot(toPoint) > 0;
+          if (!facing) {
+            el.style.display = 'none';
+            return;
+          }
+
+          const projected = position.clone().project(camera);
+          if (projected.z < -1 || projected.z > 1) {
+            el.style.display = 'none';
+            return;
+          }
+          const left = ((projected.x + 1) / 2) * width;
+          const top = ((-projected.y + 1) / 2) * height;
+          el.style.display = 'block';
+          el.style.transform = `translate(-50%, -50%) translate(${left}px, ${top}px)`;
+        });
+      }
+
       renderer.render(scene, camera);
       rafId = requestAnimationFrame(animate);
     };
@@ -141,12 +232,68 @@ export default function PanoramaViewer({ src, fov = 75 }: PanoramaViewerProps) {
       material.dispose();
       scene.clear();
     };
-  }, [src, fov]);
+  }, [effectiveSrc, fov, isScenesMode, currentScene]);
+
+  const handleHotspotClick = (targetIndex: number) => {
+    if (!isScenesMode) return;
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+
+    const overlay = overlayRef.current;
+    const fadeMs = 350;
+    if (overlay) {
+      overlay.style.transition = `opacity ${fadeMs}ms ease`;
+      overlay.style.opacity = '1';
+      overlay.style.pointerEvents = 'auto';
+    }
+
+    window.setTimeout(() => {
+      setCurrentSceneIndex(targetIndex);
+      window.setTimeout(() => {
+        if (overlay) {
+          overlay.style.opacity = '0';
+          overlay.style.pointerEvents = 'none';
+        }
+        window.setTimeout(() => {
+          isTransitioningRef.current = false;
+        }, fadeMs);
+      }, 50);
+    }, fadeMs);
+  };
 
   return (
     <div
+      className={s.container}
       ref={containerRef}
-      style={{ width: '100%', height: '100%', position: 'relative', cursor: 'grab' }}
-    />
+      style={{ width: '100%', height: '100%', position: 'relative', cursor: 'grab' }}>
+      <div
+        ref={overlayRef}
+        style={{
+          position: 'absolute',
+          left: 0,
+          top: 0,
+          width: '100%',
+          height: '100%',
+          background: '#000',
+          opacity: 0,
+          pointerEvents: 'none',
+          transition: 'opacity 300ms ease',
+          zIndex: 2
+        }}
+      />
+      {isScenesMode &&
+        currentScene?.hotspots?.map((h: { target: number; label?: string }, i: number) => (
+          <button
+            className={s.container__hotspot}
+            key={i}
+            id={`pv-hotspot-${i}`}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleHotspotClick(h.target);
+            }}>
+            <div className={s.container__hotspot__ring}></div>
+          </button>
+        ))}
+    </div>
   );
 }

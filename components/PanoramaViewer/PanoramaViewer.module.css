@@ -1,0 +1,59 @@
+.container {
+  overflow: hidden;
+
+  &__hotspot {
+    position: absolute;
+    left: 0;
+    top: 0;
+    background-color: transparent;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 3;
+
+    &__ring {
+      content: '';
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border: 5px solid white;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+
+      animation: pvRingScale 1s ease-in-out infinite alternate both;
+
+      &:before {
+        content: '';
+        position: absolute;
+        width: 20px;
+        height: 20px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        border-radius: 50%;
+        background-color: white;
+        animation: pvRingScale 1s ease-in-out infinite alternate both;
+      }
+    }
+  }
+}
+
+@keyframes pvRingScale {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.6;
+  }
+}
