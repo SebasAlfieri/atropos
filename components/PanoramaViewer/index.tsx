@@ -294,6 +294,15 @@ export default function PanoramaViewer({
             <div className={s.container__hotspot__ring}></div>
           </button>
         ))}
+      <div className={s.container__ui}>
+        <button>PANORAMA LIST</button>
+        <h1>
+          see
+          <br />
+          TOWERS
+        </h1>
+        <button>LOCATION</button>
+      </div>
     </div>
   );
 }

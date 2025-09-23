@@ -1,6 +1,41 @@
 .container {
   overflow: hidden;
 
+  &__ui {
+    display: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    border-top: 2px solid #fcfcfc;
+    padding: 30px 0 10px 0;
+    & button {
+      background-color: transparent;
+      font-size: 20px;
+      color: white;
+      width: 250px;
+      background-color: transparent;
+
+      @media (hover: hover) {
+        &:hover {
+          background-color: #fcfcfc83;
+        }
+      }
+    }
+
+    & h1 {
+      font-weight: 100;
+      text-align: center;
+      line-height: 1;
+      padding: 10px 30px;
+      background-color: #fcfcfc;
+      border-radius: 50px;
+      border: 2px solid black;
+    }
+  }
+
   &__hotspot {
     position: absolute;
     left: 0;
