@@ -262,11 +262,9 @@ export default function PanoramaViewer({
   };
 
   return (
-    <div
-      className={s.container}
-      ref={containerRef}
-      style={{ width: '100%', height: '100%', position: 'relative', cursor: 'grab' }}>
+    <div className={s.container} ref={containerRef}>
       <div
+        className={s.container__overlay}
         ref={overlayRef}
         style={{
           position: 'absolute',
