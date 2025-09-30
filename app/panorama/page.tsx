@@ -7,7 +7,7 @@ export default function PanoramaPage() {
   const scenes = [
     {
       id: 'scene-a',
-      image: '/images/panorama0.jpg',
+      image: '/images/pieza0.jpg',
       initialView: { yaw: 0, pitch: 0, fov: 75 },
       hotspots: [
         { id: 'to-b', yaw: 45, pitch: 0, label: 'Ir a B', target: 1 },
@@ -16,7 +16,7 @@ export default function PanoramaPage() {
     },
     {
       id: 'scene-b',
-      image: '/images/panorama1.jpg',
+      image: '/images/pieza1.jpg',
       initialView: { yaw: -30, pitch: 0, fov: 75 },
       hotspots: [
         { id: 'to-a', yaw: -135, pitch: 0, label: 'Volver a A', target: 0 },
@@ -25,7 +25,7 @@ export default function PanoramaPage() {
     },
     {
       id: 'scene-c',
-      image: '/images/panorama2.jpg',
+      image: '/images/pieza2.jpg',
       initialView: { yaw: -30, pitch: 0, fov: 75 },
       hotspots: [
         { id: 'to-a', yaw: -135, pitch: 0, label: 'Volver a A', target: 0 },
