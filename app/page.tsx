@@ -1,11 +1,12 @@
 'use client';
 import React from 'react';
-import { ResultContainer } from '@/containers';
+// import { ResultContainer } from '@/containers';
 
 export default function Home() {
   return (
     <main>
-      <ResultContainer />
+      {/* <ResultContainer /> */}
+      testing
     </main>
   );
 }
