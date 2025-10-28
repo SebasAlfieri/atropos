@@ -7,7 +7,7 @@ export default function PanoramaPage() {
   const scenes = [
     {
       id: 'scene-a',
-      image: '/images/pieza0.jpg',
+      image: '/images/aaa.jpg',
       initialView: { yaw: 0, pitch: 0, fov: 75 },
       hotspots: [
         { id: 'to-b', yaw: 45, pitch: 0, label: 'Ir a B', target: 1 },
