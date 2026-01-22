@@ -20,13 +20,15 @@ export type PanoramaViewerProps = {
     }>;
   }>;
   initialSceneIndex?: number;
+  onSceneChange?: (sceneIndex: number) => void;
 };
 
 export default function PanoramaViewer({
   src,
   fov = 75,
   scenes,
-  initialSceneIndex = 0
+  initialSceneIndex = 0,
+  onSceneChange
 }: PanoramaViewerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -66,6 +68,12 @@ export default function PanoramaViewer({
       cameraRef.current.updateProjectionMatrix();
     }
   }, [isScenesMode, currentScene]);
+
+  useEffect(() => {
+    if (onSceneChange) {
+      onSceneChange(currentSceneIndex);
+    }
+  }, [currentSceneIndex, onSceneChange]);
 
   useEffect(() => {
     // lock body scroll while viewer is mounted
@@ -305,14 +313,36 @@ export default function PanoramaViewer({
             <div className={s.container__hotspot__ring}></div>
           </button>
         ))}
-      <div className={s.container__ui}>
-        <button>PANORAMA LIST</button>
-        <h1>
-          see
-          <br />
-          TOWERS
-        </h1>
-        <button>LOCATION</button>
+      <div
+        className={s.container__ui}
+        style={{ display: 'flex', gap: '10px', padding: '10px', flexWrap: 'wrap' }}>
+        {scenes?.map((scene, index) => (
+          <div
+            key={index}
+            onClick={() => setCurrentSceneIndex(index)}
+            style={{
+              cursor: 'pointer',
+              textAlign: 'center',
+              borderRadius: '4px',
+              overflow: 'hidden',
+              border: currentSceneIndex === index ? '3px solid white' : '2px solid gray',
+              padding: '5px'
+            }}>
+            <img
+              src={scene.image}
+              alt={scene.id}
+              style={{
+                width: '80px',
+                height: '80px',
+                objectFit: 'cover',
+                display: 'block'
+              }}
+            />
+            <p style={{ color: 'white', fontSize: '12px', margin: '5px 0 0 0' }}>
+              {scene.id || `Scene ${index}`}
+            </p>
+          </div>
+        ))}
       </div>
     </div>
   );
